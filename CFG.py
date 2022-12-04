@@ -1,12 +1,13 @@
 
 class CFG:
     def __init__(self):
-        self.NonTerm = {'S': 'if(cond){stat}T',
-                    'T': ['else{stat}', ''],
+        self.NonTerm = {'S': 'if ( cond ) { stat } T',
+                    'T': ['else { stat }', ''],
                     'cond': 'id cop id Cd',
                     'Cd': ['&& cond Cd', '|| cond Cd', ''],
                     'id': ['letter', 'digit'],
-                    'stat': 'letter = calc;',
+                    'stat': 'letter = calc ; statD',
+                    'statD': ['stat', ''],
                     'calc': 'id D',
                     'D': ['opH id calcD', 'calcD'],
                     'calcD': ['op calc calcD', '']}
