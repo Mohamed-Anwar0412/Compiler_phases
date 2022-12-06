@@ -28,10 +28,19 @@ _lexAnalyzer = lX.LexicalAnalyzer(URL)
 cfg_rules = CFG.CFG()
 sA.setParser(_lexAnalyzer,cfg_rules)
 sA.LLparser()
-sA.mapping()
-string = ['sdf', 'asdfas', 'sadf']
-string.reverse()
-print(string)
+print(sA.mapping())
+
+outputURL = 'out.txt'
+
+with open(outputURL, 'w', encoding='utf-8') as f:
+    f.write(sA.mapping())
+    f.close()
+# string = ['sdf', 'asdfas', 'sadf']
+# string.reverse()
+# print(string)
+#
+# for key, value in cfg_rules.NonTerm.items():
+#     print(key, value)
 #print(cfg1.cfg)
 
 # print(sA.tokens)
