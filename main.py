@@ -1,5 +1,6 @@
 import Lexical_Analyzer as lX
 import CFG
+import Semantic_Analyzer
 import Syntax_Analyzer as sA
 import re
 import ply.yacc as yacc
@@ -26,7 +27,7 @@ URL = 'test.txt'
 
 nltkLA = lX.LAnltk()
 
-_lexAnalyzer = lX.LexicalAnalyzer(URL)
+#_lexAnalyzer = lX.LexicalAnalyzer(URL)
 cfg_rules = CFG.CFG()
 sA.setParser(nltkLA, cfg_rules)
 sA.LLparser()
@@ -86,3 +87,6 @@ with open(outputURL, 'w', encoding='utf-8') as f:
 # if isinstance(cfg_rules.NonTerm['T'], list):
 #     print('sdf')
 # print(sA.nt_Decider('T', 's'))
+
+
+#Semantic_Analyzer.semantic('y=y+2')

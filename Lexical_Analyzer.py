@@ -11,7 +11,8 @@ class LexicalAnalyzer:
         #print(self.tokens)
         self.tokens = [token for token in self.tokens if tn.tok_name[token.type] != 'NEWLINE' and tn.tok_name[token.type] != 'ENDMARKER' and tn.tok_name[token.type] != 'NL']
         #print(self.tokens)
-        print(tn.tok_name)
+        for token in self.tokens:
+            print(token.string, tn.tok_name[token.exact_type])
 
     def mapping(self):
         data = []
@@ -28,3 +29,4 @@ class LAnltk:
         f = open('test.txt')
         st = f.read()
         self.tokens = nltk.word_tokenize(st)
+        print(self.tokens)

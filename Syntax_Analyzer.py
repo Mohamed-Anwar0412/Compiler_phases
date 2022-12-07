@@ -2,14 +2,13 @@ import re
 import numpy as np
 from tabulate import tabulate  # table the data
 
-reject = False
 tokens = []
 nonTerm =[]
 term = []
 inputStack = []
 parserStack = ['$', 'S']
 Data = []
-i = 0
+rows = 0
 
 def setParser(lX, cfg):
     global tokens, nonTerm, term, inputStack
@@ -33,18 +32,19 @@ def pop(stack):
     return np.delete(stack, -1)
 
 def stackMatch():
-    global Data, parserStack, inputStack, i
-    key = parserStack[-1]
+    global Data, parserStack, inputStack
+    Data[-1] = "Predict: {} --> {}".format(parserStack[-1], inputStack[-1])
     parserStack = pop(parserStack)
     parserStack = np.append(parserStack, inputStack[-1])
-    Data[-1] = "Predict: {} --> {}".format(key, inputStack[-1])
     appendData()
-    i += 1
+    DataMatch()
+
+def DataMatch():
+    global Data, parserStack, inputStack
     Data[-1] = "Match: {}".format(inputStack[-1])
     inputStack = pop(inputStack)
     parserStack = pop(parserStack)
     appendData()
-    i += 1
 
 def ToString(list):
     string = '$ '
@@ -53,16 +53,26 @@ def ToString(list):
     return string
 
 def appendData():
-    global Data, i, parserStack, inputStack
+    global Data, parserStack, inputStack, rows
     revInputStack = np.flip(inputStack)
     revParserStack = np.flip(parserStack)
     Data = np.append(Data, [ToString(revParserStack), ToString(revInputStack), ''])
+    rows += 1
+
+def predictStr(choice):
+    global Data, parserStack, inputStack
+    string = choice.split(' ')
+    string.reverse()
+    Data[-1] = ('Predict: {} --> {}'.format(parserStack[-1], nonTerm[parserStack[-1]]))
+    parserStack = pop(parserStack)
+    for letter in string:
+        parserStack = np.append(parserStack, letter)
+    appendData()
 
 def LLparser():
-    global reject, Data, parserStack, inputStack, i
+    global Data, parserStack, inputStack, rows
     appendData()
-    i += 1
-    while not reject:
+    while True:
         if inputStack[-1] == '$' and parserStack[-1] == '$':
             Data[-1] = 'Accept!!'
             break
@@ -70,51 +80,29 @@ def LLparser():
             Data[-1] = 'Reject!!'
             break
         if parserStack[-1] == inputStack[-1]:
-            Data[-1] = "Match: {}".format(inputStack[-1])
-            inputStack = pop(inputStack)
-            parserStack = pop(parserStack)
-            appendData()
-            i += 1
+            DataMatch()
         elif checkTerm(parserStack[-1]):
             if re.match(term[parserStack[-1]], inputStack[-1]):
                 stackMatch()
             else:
                 Data[-1] = 'Reject!!'
-                reject = True
                 break
         elif parserStack[-1] in [key for key in nonTerm]:
             if isinstance(nonTerm[parserStack[-1]], str):
-                string = nonTerm[parserStack[-1]].split(' ')
-                string.reverse()
-                Data[-1] = ('Predict: {} --> {}'.format(parserStack[-1], nonTerm[parserStack[-1]]))
-                parserStack = pop(parserStack)
-                for letter in string:
-                    parserStack = np.append(parserStack, letter)
-                appendData()
-                i += 1
+                predictStr(nonTerm[parserStack[-1]])
             else:
                 choice = decider(parserStack[-1], inputStack[-1])
                 if choice == -1:
                     Data[-1] = 'Predict: {} --> λ'.format(parserStack[-1])
                     parserStack = pop(parserStack)
                     appendData()
-                    i += 1
                 elif choice == -2:
-                    Data[-1:-1] = 'Reject!!'
-                    reject = True
+                    Data[-1] = 'Reject!!'
                     break
                 else:
-                    string = nonTerm[parserStack[-1]][choice].split(' ')
-                    string.reverse()
-                    Data[-1] = 'Predict: {} --> {}'.format(parserStack[-1], nonTerm[parserStack[-1]][choice])
-                    parserStack = pop(parserStack)
-                    for letter in string:
-                        parserStack = np.append(parserStack, letter)
-                    appendData()
-                    i += 1
+                    predictStr(nonTerm[parserStack[-1]][choice])
         else:
             Data[-1] = 'Reject!!'
-            reject = True
             break
 
 
@@ -149,7 +137,7 @@ def deciderParser(key, currentToken):
                 return True
 
 def mapping():
-    global Data, i
-    Data.shape = (i, 3)
-    table = tabulate(Data, headers=['parser Stack', 'input Stack', 'Action'])
+    global Data, rows
+    Data.shape = (rows, 3)
+    table = tabulate(Data, headers=['Parser Stack', 'Input Stack', 'Action'])
     return table
