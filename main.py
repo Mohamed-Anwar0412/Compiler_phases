@@ -24,9 +24,11 @@ URL = 'test.txt'
 # test = temp
 # print(test)
 
+nltkLA = lX.LAnltk()
+
 _lexAnalyzer = lX.LexicalAnalyzer(URL)
 cfg_rules = CFG.CFG()
-sA.setParser(_lexAnalyzer,cfg_rules)
+sA.setParser(nltkLA, cfg_rules)
 sA.LLparser()
 print(sA.mapping())
 
