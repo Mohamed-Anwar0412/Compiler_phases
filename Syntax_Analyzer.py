@@ -82,7 +82,7 @@ def LLparser():
         if parserStack[-1] == inputStack[-1]:
             DataMatch()
         elif checkTerm(parserStack[-1]):
-            if re.match(term[parserStack[-1]], inputStack[-1]):
+            if re.fullmatch(term[parserStack[-1]], inputStack[-1]):
                 stackMatch()
             else:
                 Data[-1] = 'Reject!!'
@@ -122,7 +122,7 @@ def deciderParser(key, currentToken):
     if key == currentToken:
         return True
     elif checkTerm(key):
-        return re.match(term[key], currentToken)
+        return re.fullmatch(term[key], currentToken)
     elif key in [keys for keys in nonTerm]:
         if isinstance(nonTerm[key], str):
             string = nonTerm[key].split(' ')
