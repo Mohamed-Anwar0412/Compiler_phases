@@ -1,35 +1,91 @@
-Parser Stack                     Input Stack                                                                                                                        Action
--------------------------------  ---------------------------------------------------------------------------------------------------------------------------------  ----------------------------------------
-$ S                              $ if ( x >= y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }  Predict: S --> if ( cond ) { stat } T
-$ if ( cond ) { stat } T         $ if ( x >= y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }  Match: if
-$ ( cond ) { stat } T            $ ( x >= y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }     Match: (
-$ cond ) { stat } T              $ x >= y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }       Predict: cond --> id cop id Cd
-$ id cop id Cd ) { stat } T      $ x >= y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }       Predict: id --> ['letter', 'digit']
-$ letter cop id Cd ) { stat } T  $ x >= y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }       Predict: letter --> x
-$ x cop id Cd ) { stat } T       $ x >= y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }       Match: x
-$ cop id Cd ) { stat } T         $ >= y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }         Predict: cop --> >=
-$ >= id Cd ) { stat } T          $ >= y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }         Match: >=
-$ id Cd ) { stat } T             $ y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }            Predict: id --> ['letter', 'digit']
-$ letter Cd ) { stat } T         $ y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }            Predict: letter --> y
-$ y Cd ) { stat } T              $ y ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }            Match: y
-$ Cd ) { stat } T                $ ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }              Predict: Cd --> λ
-$ ) { stat } T                   $ ) { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }              Match: )
-$ { stat } T                     $ { y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                Match: {
-$ stat } T                       $ y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                  Predict: stat --> letter = calc ; statD
-$ letter = calc ; statD } T      $ y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                  Predict: letter --> y
-$ y = calc ; statD } T           $ y = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                  Match: y
-$ = calc ; statD } T             $ = 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                    Match: =
-$ calc ; statD } T               $ 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                      Predict: calc --> id D
-$ id D ; statD } T               $ 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                      Predict: id --> ['letter', 'digit']
-$ digit D ; statD } T            $ 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                      Predict: digit --> 10
-$ 10 D ; statD } T               $ 10 ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                      Match: 10
-$ D ; statD } T                  $ ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                         Predict: D --> ['opH id calcD', 'calcD']
-$ calcD ; statD } T              $ ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                         Predict: calcD --> λ
-$ ; statD } T                    $ ; x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                         Match: ;
-$ statD } T                      $ x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                           Predict: statD --> ['stat', '']
-$ stat } T                       $ x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                           Predict: stat --> letter = calc ; statD
-$ letter = calc ; statD } T      $ x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                           Predict: letter --> x
-$ x = calc ; statD } T           $ x = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                           Match: x
-$ = calc ; statD } T             $ = - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                             Match: =
-$ calc ; statD } T               $ - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                               Predict: calc --> id D
-$ id D ; statD } T               $ - x + 1 ; c = 3 ; a = b + c ; d += 5 + g ; & x ; * x ; ! x : - x ; x ++: u -- ; } else { x = y ; }                               Reject!!
+Parser Stack                     Input Stack                                                                              Action
+-------------------------------  ---------------------------------------------------------------------------------------  -------------------------------------
+$ S                              $ if ( x >= y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }  Predict: S --> if ( cond ) { stat } T
+$ if ( cond ) { stat } T         $ if ( x >= y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }  Match: if
+$ ( cond ) { stat } T            $ ( x >= y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }     Match: (
+$ cond ) { stat } T              $ x >= y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }       Predict: cond --> id cop id Cd
+$ id cop id Cd ) { stat } T      $ x >= y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }       Predict: id --> letter
+$ letter cop id Cd ) { stat } T  $ x >= y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }       Predict: letter --> x
+$ x cop id Cd ) { stat } T       $ x >= y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }       Match: x
+$ cop id Cd ) { stat } T         $ >= y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }         Predict: cop --> >=
+$ >= id Cd ) { stat } T          $ >= y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }         Match: >=
+$ id Cd ) { stat } T             $ y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }            Predict: id --> letter
+$ letter Cd ) { stat } T         $ y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }            Predict: letter --> y
+$ y Cd ) { stat } T              $ y ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }            Match: y
+$ Cd ) { stat } T                $ ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }              Predict: Cd --> λ
+$ ) { stat } T                   $ ) { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }              Match: )
+$ { stat } T                     $ { x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                Match: {
+$ stat } T                       $ x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                  Predict: stat --> letter L
+$ letter L } T                   $ x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                  Predict: letter --> x
+$ x L } T                        $ x = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                  Match: x
+$ L } T                          $ = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                    Predict: L --> eqop calc ; statD
+$ eqop calc ; statD } T          $ = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                    Predict: eqop --> =
+$ = calc ; statD } T             $ = 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                    Match: =
+$ calc ; statD } T               $ 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                      Predict: calc --> id D
+$ id D ; statD } T               $ 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                      Predict: id --> digit
+$ digit D ; statD } T            $ 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                      Predict: digit --> 9
+$ 9 D ; statD } T                $ 9 + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                      Match: 9
+$ D ; statD } T                  $ + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                        Predict: D --> op V
+$ op V ; statD } T               $ + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                        Predict: op --> +
+$ + V ; statD } T                $ + 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                        Match: +
+$ V ; statD } T                  $ 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                          Predict: V --> F VD
+$ F VD ; statD } T               $ 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                          Predict: F --> id
+$ id VD ; statD } T              $ 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                          Predict: id --> digit
+$ digit VD ; statD } T           $ 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                          Predict: digit --> 5
+$ 5 VD ; statD } T               $ 5 ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                          Match: 5
+$ VD ; statD } T                 $ ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                            Predict: VD --> λ
+$ ; statD } T                    $ ; y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                            Match: ;
+$ statD } T                      $ y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                              Predict: statD --> stat
+$ stat } T                       $ y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                              Predict: stat --> letter L
+$ letter L } T                   $ y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                              Predict: letter --> y
+$ y L } T                        $ y = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                              Match: y
+$ L } T                          $ = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                Predict: L --> eqop calc ; statD
+$ eqop calc ; statD } T          $ = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                Predict: eqop --> =
+$ = calc ; statD } T             $ = 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                Match: =
+$ calc ; statD } T               $ 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                  Predict: calc --> id D
+$ id D ; statD } T               $ 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                  Predict: id --> digit
+$ digit D ; statD } T            $ 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                  Predict: digit --> 9
+$ 9 D ; statD } T                $ 9 + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                  Match: 9
+$ D ; statD } T                  $ + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                    Predict: D --> op V
+$ op V ; statD } T               $ + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                    Predict: op --> +
+$ + V ; statD } T                $ + 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                    Match: +
+$ V ; statD } T                  $ 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                      Predict: V --> F VD
+$ F VD ; statD } T               $ 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                      Predict: F --> id
+$ id VD ; statD } T              $ 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                      Predict: id --> digit
+$ digit VD ; statD } T           $ 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                      Predict: digit --> 6
+$ 6 VD ; statD } T               $ 6 ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                      Match: 6
+$ VD ; statD } T                 $ ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                        Predict: VD --> opH F VD
+$ opH F VD ; statD } T           $ ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                        Predict: opH --> ^
+$ ^ F VD ; statD } T             $ ^ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                        Match: ^
+$ F VD ; statD } T               $ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                          Predict: F --> id
+$ id VD ; statD } T              $ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                          Predict: id --> digit
+$ digit VD ; statD } T           $ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                          Predict: digit --> 4
+$ 4 VD ; statD } T               $ 4 ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                          Match: 4
+$ VD ; statD } T                 $ ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                            Predict: VD --> λ
+$ ; statD } T                    $ ; l ++ ; x += 6 ; X != 6 } else { x = y ; }                                            Match: ;
+$ statD } T                      $ l ++ ; x += 6 ; X != 6 } else { x = y ; }                                              Predict: statD --> stat
+$ stat } T                       $ l ++ ; x += 6 ; X != 6 } else { x = y ; }                                              Predict: stat --> letter L
+$ letter L } T                   $ l ++ ; x += 6 ; X != 6 } else { x = y ; }                                              Predict: letter --> l
+$ l L } T                        $ l ++ ; x += 6 ; X != 6 } else { x = y ; }                                              Match: l
+$ L } T                          $ ++ ; x += 6 ; X != 6 } else { x = y ; }                                                Predict: L --> unB ; statD
+$ unB ; statD } T                $ ++ ; x += 6 ; X != 6 } else { x = y ; }                                                Predict: unB --> ++
+$ ++ ; statD } T                 $ ++ ; x += 6 ; X != 6 } else { x = y ; }                                                Match: ++
+$ ; statD } T                    $ ; x += 6 ; X != 6 } else { x = y ; }                                                   Match: ;
+$ statD } T                      $ x += 6 ; X != 6 } else { x = y ; }                                                     Predict: statD --> stat
+$ stat } T                       $ x += 6 ; X != 6 } else { x = y ; }                                                     Predict: stat --> letter L
+$ letter L } T                   $ x += 6 ; X != 6 } else { x = y ; }                                                     Predict: letter --> x
+$ x L } T                        $ x += 6 ; X != 6 } else { x = y ; }                                                     Match: x
+$ L } T                          $ += 6 ; X != 6 } else { x = y ; }                                                       Predict: L --> eqop calc ; statD
+$ eqop calc ; statD } T          $ += 6 ; X != 6 } else { x = y ; }                                                       Predict: eqop --> +=
+$ += calc ; statD } T            $ += 6 ; X != 6 } else { x = y ; }                                                       Match: +=
+$ calc ; statD } T               $ 6 ; X != 6 } else { x = y ; }                                                          Predict: calc --> id D
+$ id D ; statD } T               $ 6 ; X != 6 } else { x = y ; }                                                          Predict: id --> digit
+$ digit D ; statD } T            $ 6 ; X != 6 } else { x = y ; }                                                          Predict: digit --> 6
+$ 6 D ; statD } T                $ 6 ; X != 6 } else { x = y ; }                                                          Match: 6
+$ D ; statD } T                  $ ; X != 6 } else { x = y ; }                                                            Predict: D --> λ
+$ ; statD } T                    $ ; X != 6 } else { x = y ; }                                                            Match: ;
+$ statD } T                      $ X != 6 } else { x = y ; }                                                              Predict: statD --> stat
+$ stat } T                       $ X != 6 } else { x = y ; }                                                              Predict: stat --> letter L
+$ letter L } T                   $ X != 6 } else { x = y ; }                                                              Predict: letter --> X
+$ X L } T                        $ X != 6 } else { x = y ; }                                                              Match: X
+$ L } T                          $ != 6 } else { x = y ; }                                                                Reject!!

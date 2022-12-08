@@ -8,12 +8,15 @@ class CFG:
             'T': ['else { stat }', ''],
             'cond': 'id cop id Cd',
             'Cd': ['&& cond Cd', '|| cond Cd', ''],
-            'id': ['letter', 'digit'],
-            'stat': 'letter = calc ; statD',
+            'id': ['letter', 'digit', 'unF letter', '- digit'],
+            'stat': ['letter L', 'unB letter ; statD'],
+            'L': ['eqop calc ; statD', 'unB ; statD'],
             'statD': ['stat', ''],
-            'calc': 'id D',
-            'D': ['opH id calcD', 'calcD'],
-            'calcD': ['op calc calcD', '']
+            'calc': ['id D', 'V'],
+            'D': ['op V', ''],
+            'V': 'F VD',
+            'VD': ['opH F VD', ''],
+            'F': ['id', '( calc )']
         }
 
 
@@ -21,8 +24,11 @@ class CFG:
             'cop': r'!=|<=|>=|==|<|>|&|[|]',
             'letter': r'[a-zA-Z_]+[a-zA-Z0-9_]*',
             'digit': r'[0-9]+',
-            'opH': r'[*]|/|%|\\|\^|[+]|-',
-            'op': r'[+]|-'
+            'opH': r'[*]|/|%|\\|\^',
+            'op': r'[+]|-',
+            'unF': r'--|!|\+\+|-|&|[*]',
+            'unB': r'--|\+\+',
+            'eqop': r'=|\+=|-=|\*=|/='
         }
 
 class tokensTag:
@@ -51,7 +57,11 @@ class tokensTag:
             'AND': r'&',
             'OR': r'|',
             'ANDed': r'&&',
-            'ORed': r'\|\|'
+            'ORed': r'\|\|',
+            'Increment': r'\+\+',
+            'Decrement': r'--',
+            'compound assignment': r'=|\+=|-=|\*=|/='
+
         }
     def getType(self, token):
         for key, value in self.types.items():

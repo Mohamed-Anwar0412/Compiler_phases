@@ -63,7 +63,7 @@ def predictStr(choice):
     global Data, parserStack, inputStack
     string = choice.split(' ')
     string.reverse()
-    Data[-1] = ('Predict: {} --> {}'.format(parserStack[-1], nonTerm[parserStack[-1]]))
+    Data[-1] = ('Predict: {} --> {}'.format(parserStack[-1], choice))
     parserStack = pop(parserStack)
     for letter in string:
         parserStack = np.append(parserStack, letter)
