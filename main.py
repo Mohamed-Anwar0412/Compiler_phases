@@ -1,6 +1,6 @@
 import Lexical_Analyzer as lX
 import CFG
-import Semantic_Analyzer
+import Semantic_Analyzer as Sem
 import Syntax_Analyzer as sA
 
 
@@ -8,12 +8,15 @@ URL = 'test.txt'
 
 nltkLA = lX.LAnltk(URL)
 
-print(nltkLA.mapping())
+#print(nltkLA.mapping())
 
 cfg_rules = CFG.CFG()
 sA.setParser(nltkLA, cfg_rules)
 sA.LLparser()
-print(sA.mapping())
+semantic = Sem.Semantic_Analyzer(cfg_rules, nltkLA)
+print(sA.predict_stack)
+print(Sem.getFromString(sA.predict_stack))
+#print(sA.mapping())
 
 outputURL = 'out.txt'
 

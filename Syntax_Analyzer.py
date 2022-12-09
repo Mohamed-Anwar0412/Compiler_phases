@@ -8,6 +8,7 @@ term = []
 inputStack = []
 parserStack = ['$', 'S']
 Data = []
+predict_stack = {}
 rows = 0
 
 def setParser(lX, cfg):
@@ -32,8 +33,9 @@ def pop(stack):
     return np.delete(stack, -1)
 
 def stackMatch():
-    global Data, parserStack, inputStack
+    global Data, parserStack, inputStack, predict_stack
     Data[-1] = "Predict: {} --> {}".format(parserStack[-1], inputStack[-1])
+    predict_stack[parserStack[-1]] = inputStack[-1]
     parserStack = pop(parserStack)
     parserStack = np.append(parserStack, inputStack[-1])
     appendData()
@@ -60,17 +62,18 @@ def appendData():
     rows += 1
 
 def predictStr(choice):
-    global Data, parserStack, inputStack
+    global Data, parserStack, inputStack, predict_stack
     string = choice.split(' ')
     string.reverse()
     Data[-1] = ('Predict: {} --> {}'.format(parserStack[-1], choice))
+    predict_stack[parserStack[-1]] = choice
     parserStack = pop(parserStack)
     for letter in string:
         parserStack = np.append(parserStack, letter)
     appendData()
 
 def LLparser():
-    global Data, parserStack, inputStack, rows
+    global Data, parserStack, inputStack, rows, predict_stack
     appendData()
     while True:
         if inputStack[-1] == '$' and parserStack[-1] == '$':
@@ -94,6 +97,7 @@ def LLparser():
                 choice = decider(parserStack[-1], inputStack[-1])
                 if choice == -1:
                     Data[-1] = 'Predict: {} --> λ'.format(parserStack[-1])
+                    predict_stack[parserStack[-1]] = ''
                     parserStack = pop(parserStack)
                     appendData()
                 elif choice == -2:
