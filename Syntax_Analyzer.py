@@ -8,7 +8,8 @@ term = []
 inputStack = []
 parserStack = ['$', 'S']
 Data = []
-predict_stack = {}
+predictKeys = []
+predictValues = []
 rows = 0
 
 def setParser(lX, cfg):
@@ -33,9 +34,10 @@ def pop(stack):
     return np.delete(stack, -1)
 
 def stackMatch():
-    global Data, parserStack, inputStack, predict_stack
+    global Data, parserStack, inputStack, predictKeys, predictValues
     Data[-1] = "Predict: {} --> {}".format(parserStack[-1], inputStack[-1])
-    predict_stack[parserStack[-1]] = inputStack[-1]
+    predictKeys.append(parserStack[-1])
+    predictValues.append(inputStack[-1])
     parserStack = pop(parserStack)
     parserStack = np.append(parserStack, inputStack[-1])
     appendData()
@@ -62,18 +64,19 @@ def appendData():
     rows += 1
 
 def predictStr(choice):
-    global Data, parserStack, inputStack, predict_stack
+    global Data, parserStack, inputStack, predictKeys, predictValues
     string = choice.split(' ')
     string.reverse()
     Data[-1] = ('Predict: {} --> {}'.format(parserStack[-1], choice))
-    predict_stack[parserStack[-1]] = choice
+    predictKeys.append(parserStack[-1])
+    predictValues.append(choice)
     parserStack = pop(parserStack)
     for letter in string:
         parserStack = np.append(parserStack, letter)
     appendData()
 
 def LLparser():
-    global Data, parserStack, inputStack, rows, predict_stack
+    global Data, parserStack, inputStack, rows, predictKeys, predictValues
     appendData()
     while True:
         if inputStack[-1] == '$' and parserStack[-1] == '$':
@@ -97,7 +100,8 @@ def LLparser():
                 choice = decider(parserStack[-1], inputStack[-1])
                 if choice == -1:
                     Data[-1] = 'Predict: {} --> λ'.format(parserStack[-1])
-                    predict_stack[parserStack[-1]] = ''
+                    predictKeys.append(parserStack[-1])
+                    predictValues.append('λ')
                     parserStack = pop(parserStack)
                     appendData()
                 elif choice == -2:

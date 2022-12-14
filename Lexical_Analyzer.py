@@ -7,7 +7,7 @@ class LAnltk:
     def __init__(self, url):
         f = open(url)
         self.tokens = nltk.wordpunct_tokenize(f.read())
-        print(self.tokens)
+        #print(self.tokens)
         for i in range(len(self.tokens)):
             if self.tokens[i] == '++;':
                 self.tokens[i] = '++'
