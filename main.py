@@ -9,7 +9,7 @@ import nltk
 URL = 'test.txt'
 
 nltkLA = lX.LAnltk(URL)
-
+f = open(URL)
 #print(nltkLA.mapping())
 
 cfg_rules = CFG.CFG()
@@ -20,7 +20,12 @@ print(sA.mapping())
 #print(sA.predictValues)
 
 Sem.setSem(nltkLA, cfg_rules)
+Sem.cond_match()
 
+Sem.setMainBranch()
+
+t3 = nltk.Tree.fromstring(Sem.setSynTreeformat(), brackets='[]')
+print(t3.draw())
 
 Sem.setTree()
 #print(Sem.treeFormat)

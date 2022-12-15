@@ -1,3 +1,5 @@
+import re
+
 import nltk
 from nltk.draw.util import TextWidget
 from pptree import *
@@ -11,10 +13,19 @@ treeFormat = []
 tokens = []
 nonTerm = []
 term = []
+inputstring = ''
+
+synTree = []
+
+listOfTres = []
+
+
 # childrenStack = []
 # father = None
 # tree = Tree()
 # count = 1
+# condition = []
+# statment = []
 
 
 def setSem(lX, cfg):
@@ -102,7 +113,92 @@ def setSynTree():
             buffer = item
         print(strTree)
     return strTree
+def sharkway():
+    global inputstring
+    for item in tokens:
+        inputstring += item + ' '
 
+
+
+def cond_match():
+    global inputstring, listOfTres
+    sharkway()
+    condition = re.findall(r"\(.*?\)",inputstring)[0]
+    condition = condition.strip('( ')
+    condition = condition.strip(' )')
+    listOfTres.append(condition + ';')
+
+    body=re.findall(r"{.*?\}",inputstring)
+    for i in range(len(body)):
+        body[i] = body[i].strip('{ ')
+        body[i] = body[i].strip(' }')
+        listOfTres.append(body[i])
+    print(listOfTres)
+
+
+def setMainBranch():
+    global synTree, listOfTres
+    if len(listOfTres) == 3:
+        synTree = ['[ ', 'if ', '[ ', 'Condition ', binaryTree(listOfTres[0]) + ' ', ']', '[ ', 'Body ', binaryTree(listOfTres[1]) + ' ', ']', '[ ', 'else ', binaryTree(listOfTres[2]) + ' ', ']', ']']
+    else:
+        synTree = ['[ ', 'if ', '[ ', 'Condition ', binaryTree(listOfTres[0]) + ' ', ']', '[ ', 'Body ', binaryTree(listOfTres[1]) + ' ', ']', ']']
+
+
+def binaryTree(string):
+    statements = string.split(';')[:-1]
+    tree = ''
+    print(statements)
+    for stat in statements:
+        tokens = stat.split(' ')
+        for item in tokens:
+            if item == '':
+                tokens.remove(item)
+        print(tokens)
+        tree += '[ ' + tokens[1] + ' ' + tokens[0] + ' ' + setBranch(tokens[2:]) + ' ]'
+    return tree
+
+
+
+def setBranch(tokens):
+    node = ''
+    for token in tokens:
+        if re.match(r'[+]|-', token):
+            node += '[ ' + token + ' ' + setBranch(tokens[:tokens.index(token)]) + ' ' + setBranch(tokens[tokens.index(token) + 1:]) + ' ]'
+            return node
+    for token in tokens:
+        if re.match(r'[*]|/|%|\\|\^', token):
+            node += '[ ' + token + ' ' + setBranch(tokens[:tokens.index(token)]) + ' ' + setBranch(tokens[tokens.index(token) + 1:]) + ' ]'
+            return node
+    print(tokens)
+    if not tokens:
+        return ''
+    return tokens[0]
+
+
+# def insertNode(index):
+#     insertValue(['[', predictKeys.pop(0)], index)
+#     index += 2
+#     value = predictValues.pop(0).split(' ')
+#     value.append(']')
+#     insertValue(value, index)
+#
+# def insertValue(list, index):
+#     global treeFormat
+#     for item in list:
+#         treeFormat.insert(index, item)
+#         index += 1
+
+def setSynTreeformat():
+    strTree = ''
+    for item in synTree:
+        strTree += item + ' '
+    return strTree
+
+# def stat_match():
+#     for item in treeFormat:
+#         if item in ['if {','} else ']:
+#             statment.append(item)
+#
 
 # self.tree = parseTree()
 # print_tree(self.tree, horizontal=False)
