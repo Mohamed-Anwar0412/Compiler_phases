@@ -20,7 +20,7 @@ print(sA.mapping())
 #print(sA.predictValues)
 
 Sem.setSem(nltkLA, cfg_rules)
-Sem.cond_match()
+Sem.getSegments()
 
 Sem.setMainBranch()
 
