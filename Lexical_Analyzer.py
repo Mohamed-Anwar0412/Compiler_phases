@@ -1,13 +1,14 @@
 import numpy as np
-from tabulate import tabulate  # table the data
+from tabulate import tabulate
 import nltk
 import CFG
 
-class LAnltk:
+
+class LexicalAnalyzer:
     def __init__(self, url):
         f = open(url)
         self.tokens = nltk.wordpunct_tokenize(f.read())
-        #print(self.tokens)
+        f.close()
         for i in range(len(self.tokens)):
             if self.tokens[i] == '++;':
                 self.tokens[i] = '++'
@@ -19,9 +20,9 @@ class LAnltk:
     def mapping(self):
         data = []
         rows = 0
-        tags = CFG.tokensTag()
+        tags = CFG.TokenTag()
         for token in self.tokens:
-            data = np.append(data, [token, tags.getType(token)])
+            data = np.append(data, [token, tags.get_type(token)])
             rows += 1
         data.shape = (rows, 2)
         table = tabulate(data, headers=['Lexeme', 'Token'])

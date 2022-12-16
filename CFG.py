@@ -2,6 +2,7 @@ import re
 
 
 class CFG:
+
     def __init__(self):
         self.NonTerm = {
             'S': 'if ( cond ) { stat } T',
@@ -19,8 +20,7 @@ class CFG:
             'F': ['id', '( calc )']
         }
 
-
-        self.Term = {
+        self.Regex = {
             'cop': r'!=|<=|>=|==|<|>|&|[|]',
             'letter': r'[a-zA-Z_]+[a-zA-Z0-9_]*',
             'digit': r'[0-9]+',
@@ -31,7 +31,9 @@ class CFG:
             'eqop': r'=|\+=|-=|\*=|/='
         }
 
-class tokensTag:
+
+class TokenTag:
+
     def __init__(self):
         self.types = {
             'Keyword': r'(if)|(else)',
@@ -63,7 +65,8 @@ class tokensTag:
             'compound assignment': r'=|\+=|-=|\*=|/='
 
         }
-    def getType(self, token):
+
+    def get_type(self, token):
         for key, value in self.types.items():
             if re.fullmatch(value, token):
                 return key

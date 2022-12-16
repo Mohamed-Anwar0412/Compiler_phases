@@ -1,10 +1,10 @@
 import re
 import numpy as np
-from tabulate import tabulate  # table the data
+from tabulate import tabulate
 
 tokens = []
-nonTerm =[]
-term = []
+nonTerm = []
+Regex = []
 inputStack = []
 parserStack = ['$', 'S']
 Data = []
@@ -12,26 +12,34 @@ predictKeys = []
 predictValues = []
 rows = 0
 
+
 def setParser(lX, cfg):
-    global tokens, nonTerm, term, inputStack
+    global tokens, nonTerm, Regex, inputStack
     tokens = lX.tokens
     nonTerm = cfg.NonTerm
-    term = cfg.Term
+    Regex = cfg.Regex
     for token in tokens:
-        #inputStack = np.append(inputStack, token.string)
         inputStack = np.append(inputStack, token)
     inputStack = np.append(inputStack, '$')
     inputStack = np.flip(inputStack)
 
 
+def ToString(list):
+    string = '$ '
+    for st in list[:-1]:
+        string = string + st + ' '
+    return string
 
-def checkTerm(key):
-    if key in [key for key in term]:
+
+def checkRegex(key):
+    if key in [key for key in Regex]:
         return True
     return False
 
+
 def pop(stack):
     return np.delete(stack, -1)
+
 
 def stackMatch():
     global Data, parserStack, inputStack, predictKeys, predictValues
@@ -43,6 +51,7 @@ def stackMatch():
     appendData()
     DataMatch()
 
+
 def DataMatch():
     global Data, parserStack, inputStack
     Data[-1] = "Match: {}".format(inputStack[-1])
@@ -50,11 +59,6 @@ def DataMatch():
     parserStack = pop(parserStack)
     appendData()
 
-def ToString(list):
-    string = '$ '
-    for st in list[:-1]:
-        string = string + st + ' '
-    return string
 
 def appendData():
     global Data, parserStack, inputStack, rows
@@ -62,6 +66,7 @@ def appendData():
     revParserStack = np.flip(parserStack)
     Data = np.append(Data, [ToString(revParserStack), ToString(revInputStack), ''])
     rows += 1
+
 
 def predictStr(choice):
     global Data, parserStack, inputStack, predictKeys, predictValues
@@ -75,24 +80,25 @@ def predictStr(choice):
         parserStack = np.append(parserStack, letter)
     appendData()
 
+
 def LLparser():
     global Data, parserStack, inputStack, rows, predictKeys, predictValues
     appendData()
     while True:
         if inputStack[-1] == '$' and parserStack[-1] == '$':
             Data[-1] = 'Accept!!'
-            break
+            return True
         if parserStack[-1] == '$' and inputStack[-1] != '$':
             Data[-1] = 'Reject!!'
-            break
+            return False
         if parserStack[-1] == inputStack[-1]:
             DataMatch()
-        elif checkTerm(parserStack[-1]):
-            if re.fullmatch(term[parserStack[-1]], inputStack[-1]):
+        elif checkRegex(parserStack[-1]):
+            if re.fullmatch(Regex[parserStack[-1]], inputStack[-1]):
                 stackMatch()
             else:
                 Data[-1] = 'Reject!!'
-                break
+                return False
         elif parserStack[-1] in [key for key in nonTerm]:
             if isinstance(nonTerm[parserStack[-1]], str):
                 predictStr(nonTerm[parserStack[-1]])
@@ -106,12 +112,12 @@ def LLparser():
                     appendData()
                 elif choice == -2:
                     Data[-1] = 'Reject!!'
-                    break
+                    return False
                 else:
                     predictStr(nonTerm[parserStack[-1]][choice])
         else:
             Data[-1] = 'Reject!!'
-            break
+            return False
 
 
 def decider(key, currentToken):
@@ -129,8 +135,8 @@ def decider(key, currentToken):
 def deciderParser(key, currentToken):
     if key == currentToken:
         return True
-    elif checkTerm(key):
-        return re.fullmatch(term[key], currentToken)
+    elif checkRegex(key):
+        return re.fullmatch(Regex[key], currentToken)
     elif key in [keys for keys in nonTerm]:
         if isinstance(nonTerm[key], str):
             string = nonTerm[key].split(' ')
@@ -143,6 +149,7 @@ def deciderParser(key, currentToken):
                 return False
             else:
                 return True
+
 
 def mapping():
     global Data, rows
