@@ -15,17 +15,15 @@ def setSem(lx):
 def setTree():
     global parseTreeFormat
     count = 0
+    insertNode(count)
+    count += 2
     while predictKeys:
-        if not parseTreeFormat:
+        if parseTreeFormat[count] == predictKeys[0]:
+            parseTreeFormat.pop(count)
             insertNode(count)
             count += 2
         else:
-            if parseTreeFormat[count] == predictKeys[0]:
-                parseTreeFormat.pop(count)
-                insertNode(count)
-                count += 2
-            else:
-                count += 1
+            count += 1
 
 
 def insertNode(index):
@@ -110,11 +108,13 @@ def setBranch(tokens):
 def DrawTree(choice):
     if choice == 1:
         setTree()
+        #print(ToString(parseTreeFormat))
         t = nltk.Tree.fromstring(ToString(parseTreeFormat), brackets='[]')
         print(t.draw())
     elif choice == 2:
         getSegments()
         setMainBranch()
+        #print(ToString(synTree))
         t = nltk.Tree.fromstring(ToString(synTree), brackets='[]')
         print(t.draw())
     else:
